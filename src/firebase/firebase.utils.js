@@ -7,9 +7,36 @@ const config = {
   authDomain: "crown-db-35c62.firebaseapp.com",
   databaseURL: "https://crown-db-35c62.firebaseio.com",
   projectId: "crown-db-35c62",
-  storageBucket: "",
+  storageBucket: "crown-db-35c62.appspot.com",
   messagingSenderId: "1050738988494",
   appId: "1:1050738988494:web:df52f510b4740cc1"
+}
+
+export const createUserProfileDocument = async (userAuth, additionalData) => {
+  // User not logged in.
+  if (!userAuth) return;
+
+  const userRef = firestore.doc(`users/${userAuth.uid}`);
+
+  const snapShot = await userRef.get();
+
+  if(!snapShot.exists) {
+    const { displayName, email } = userAuth;
+    const createdAt = new Date();
+
+    try {
+      await userRef.set({
+        displayName,
+        email,
+        createdAt,
+        ...additionalData
+      })
+    } catch(error) {
+      console.log('ERROR - Creating User', error.message);
+    }
+  }
+
+  return userRef;
 }
 
 firebase.initializeApp(config);
